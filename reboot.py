@@ -2,6 +2,8 @@ import requests
 import time
 import csv
 
+f = open('log.csv', 'w', newline='')
+csvwriter = csv.writer(f)
 # Configuration parameters and credentials
 print('Upload a csv file to the same directory as this python script')
 print('The csv file should only have 1 row, filled with as many serials as you like :).')
@@ -11,7 +13,7 @@ with open(csv_name, newline='') as f:
     reader = csv.reader(f)
     serials = list(reader)
 
-log = open('log.txt', 'a')
+
 x_cisco_meraki_api_key = input('input your Meraki api key: ')
 header = {'X-Cisco-Meraki-API-Key':'{}'.format(x_cisco_meraki_api_key)}
 
@@ -24,15 +26,18 @@ lol = serials[0]
 lol = lol[0]
 serials[0] = ['{}'.format(lol[3:])]
 
+fields = ['Serial', 'Reboot Response']
+csvwriter.writerow(fields)
+rows = []
 for serial in serials:
     for serial in serial:
         base = 'https://api-mp.meraki.com/api/v1/devices/{}/reboot'.format(serial)
         r = requests.post(base, verify=False, headers=header)
-        log.write('{}   {}'.format(serial,r.text))
+        addrow = [serial,r.text]
+        csvwriter.writerow(addrow)
         print('{}   {}'.format(serial,r.text))
         time.sleep(wait)
 
 input('check the log or the console output for failures: Enter to close')
 
 
-log.close()
